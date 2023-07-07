@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+
     <record model="ir.ui.view" id="invoice_line_extend_view">
         <field name="name">invoice.line.extend</field>
         <field name="model">account.invoice</field>
@@ -8,6 +9,18 @@
             <xpath expr="//field[@name='payment_term_id']" position="before">
                 <field name="count_line" invisible="1"/>
                 <field name="count_line1" invisible="1"/>
+            </xpath>
+
+        </field>
+    </record>
+
+    <record id="view_account_invoice_report_search_inherit_custom" model="ir.ui.view">
+        <field name="name">account.invoice.report.search.inherit.custom</field>
+        <field name="model">account.invoice.report</field>
+        <field name="inherit_id" ref="account.view_account_invoice_report_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//search/filter[@name='thisyear']" position="after">
+                <field name="categ_id" filter_domain="[('categ_id', 'child_of', raw_value)]"/>
             </xpath>
         </field>
     </record>
