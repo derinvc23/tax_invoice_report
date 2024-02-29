@@ -25,7 +25,7 @@
     'description': 'Total taxable amount to the accounting report',
     'category': 'Accounting',
     'author': 'Cybrosys Techno Solutions',
-    'website': "https://www.cybrosys.com",
+    'website': "https://www.jadetpa.com",
     'company': 'Cybrosys Techno Solutions',
     'depends': [
                 'base', 'account',
