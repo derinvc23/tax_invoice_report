@@ -59,16 +59,21 @@ class AccountInvoiceReport(models.Model):
 
     def _select(self):
         return super(AccountInvoiceReport, self)._select() \
-               + ", sub.amount_taxes as amount_taxes, sub.amount_totals as amount_totals, sub.number, sub.costo, sub.cantidad_actual"
+               + """, sub.amount_taxes as amount_taxes, 
+                      sub.amount_totals as amount_totals, 
+                      sub.number, 
+                      sub.costo, 
+                      sub.cantidad_actual"""
 
     def _sub_select(self):
         return super(AccountInvoiceReport, self)._sub_select() \
                + """,CASE WHEN t0.tax_id is not null then
-                        sum(((ail.price_unit * ail.quantity) - (invoice_type.sign::numeric * ail.quantity/(u.factor * u2.factor)*ail.price_unit * ail.discount/100::numeric))*0.13)
+                        sum(((ail.price_unit * ail.quantity) - (invoice_type.sign::numeric * ail.quantity/(u.factor * u2.factor)*ail.price_unit * ail.discount/100::numeric))*0.13) / coalesce(rcr.rate, 1)
                     ELSE
                         0
-                    END AS amount_taxes
-                    ,((ail.price_unit * ail.quantity)-(((ail.price_unit * ail.quantity) * ail.discount) / 100)) as amount_totals, ai.number,
+                    END AS amount_taxes,
+                    ((ail.price_unit * ail.quantity)-(((ail.price_unit * ail.quantity) * ail.discount) / 100)) / coalesce(rcr.rate, 1) as amount_totals, 
+                    ai.number,
                     sum(s1.total)                                                                       as costo,
                     sum(sq.total_qty)                                                                   as cantidad_actual
                     """
@@ -99,6 +104,8 @@ class AccountInvoiceReport(models.Model):
                          ) as foo
                     group by foo.invoice_line_id, foo.product_id, foo.origin
                     order by foo.origin) as s1 on s1.product_id = ail.product_id and s1.origin = ai.origin and s1.invoice_line_id = ail.id
+        left join res_company rc1 on rc1.id = ai.company_id
+        left join res_currency_rate rcr on rcr.company_id = ai.company_id and ai.date_invoice = rcr.name::DATE and ai.currency_id = rcr.currency_id 
         left join (select sq.product_id,
                          sum(sq.qty) as total_qty
                   from stock_quant sq
@@ -110,4 +117,4 @@ class AccountInvoiceReport(models.Model):
 
 
     def _group_by(self):
-        return super(AccountInvoiceReport, self)._group_by() + ", ai.number, t0.tax_id"
+        return super(AccountInvoiceReport, self)._group_by() + ", ai.number, t0.tax_id, rcr.rate"
