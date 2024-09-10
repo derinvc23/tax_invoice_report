@@ -28,9 +28,9 @@
     'website': "https://www.cybrosys.com",
     'company': 'Cybrosys Techno Solutions',
     'depends': [
-                'base', 'account',
+                'base', 'account', 'product'
                 ],
-    'data': ['tax_view.xml'],
+    'data': ['tax_view.xml', 'product_views.xml'],
     'images': ['static/description/banner.jpg'],
     'license': 'AGPL-3',
     'installable': True,

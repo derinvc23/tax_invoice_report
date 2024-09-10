@@ -20,3 +20,4 @@
 
 from . import invoice_report
 from . import res_currency
+from . import product

@@ -24,3 +24,32 @@ class ResCurrency(models.Model):
         currency_rates = dict(self._cr.fetchall())
         for currency in self:
             currency.rate = currency_rates.get(currency.id) or 1.0
+            # if currency.name == 'BOB':
+            #     products = self.env['product.template'].search([('active', '=', True)])
+            #     for product in products:
+            #         product.list_price_sec = currency.rate * product.list_price
+
+
+class ResCurrencyRate(models.Model):
+    _inherit = 'res.currency.rate'
+
+    @api.model
+    def create(self, values):
+        """ Override to avoid automatic logging of creation """
+        rate = values.get('rate', False)
+        result = super(ResCurrencyRate, self).create(values)
+        if result.currency_id.name == 'BOB':
+            products = self.env['product.template'].search([('active', '=', True)])
+            for product in products:
+                product.list_price_sec = rate * product.list_price
+        return result
+
+    @api.multi
+    def write(self, values):
+        rate = values.get('rate', False)
+        result = super(ResCurrencyRate, self).write(values)
+        if self.currency_id.name == 'BOB':
+            products = self.env['product.template'].search([('active', '=', True)])
+            for product in products:
+                product.list_price_sec = rate * product.list_price
+        return result
